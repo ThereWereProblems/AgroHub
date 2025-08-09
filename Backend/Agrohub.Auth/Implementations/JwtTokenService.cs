@@ -1,4 +1,6 @@
-﻿using Agrohub.Auth.Interfaces;
+using Agrohub.Auth.Interfaces;
+using Agrohub.Auth.Options;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -9,25 +11,22 @@ namespace Agrohub.Auth.Implementations;
 
 public sealed class JwtTokenService : ITokenService
 {
-    private readonly IConfiguration _cfg;
+    private readonly JwtOptions _options;
     private readonly IClock _clock;
 
-    public JwtTokenService(IConfiguration cfg, IClock clock)
+    public JwtTokenService(IOptions<JwtOptions> options, IClock clock)
     {
-        _cfg = cfg;
+        _options = options.Value;
         _clock = clock;
     }
 
     public (string token, DateTimeOffset expiresAt) CreateAccessToken(User user, IEnumerable<string> roles, Guid deviceId)
     {
-        var jwtSection = _cfg.GetSection("Jwt");
-        var issuer = jwtSection["Issuer"]!;
-        var audience = jwtSection["Audience"]!;
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["Key"]!));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var now = _clock.UtcNow;
-        var expires = now.AddMinutes(10); // możesz uczynić konfigurowalnym: Jwt:AccessMinutes
+        var expires = now.AddMinutes(_options.AccessMinutes);
 
         var claims = new List<Claim>
         {
@@ -39,8 +38,8 @@ public sealed class JwtTokenService : ITokenService
         claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
         var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
+            issuer: _options.Issuer,
+            audience: _options.Audience,
             claims: claims,
             notBefore: now.UtcDateTime,
             expires: expires.UtcDateTime,

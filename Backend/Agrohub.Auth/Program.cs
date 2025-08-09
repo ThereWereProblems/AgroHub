@@ -1,7 +1,8 @@
-﻿using Agrohub.Auth.Behaviors;
+using Agrohub.Auth.Behaviors;
 using Agrohub.Auth.Data.Interceptors;
 using Agrohub.Auth.Interfaces;
 using Agrohub.Auth.Implementations;
+using Agrohub.Auth.Options;
 using Carter;
 using FluentValidation;
 using MediatR;
@@ -42,7 +43,9 @@ builder.Services.AddCors(o => o.AddPolicy("spa", p =>
 
 // --- JWT AuthN/AuthZ
 var jwt = builder.Configuration.GetSection("Jwt");
-var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!));
+builder.Services.Configure<JwtOptions>(jwt);
+var jwtOptions = jwt.Get<JwtOptions>()!;
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opts =>
@@ -50,9 +53,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         opts.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = jwt["Issuer"],
+            ValidIssuer = jwtOptions.Issuer,
             ValidateAudience = true,
-            ValidAudience = jwt["Audience"],
+            ValidAudience = jwtOptions.Audience,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = key,
             ValidateLifetime = true,
