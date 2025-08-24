@@ -1,0 +1,6 @@
+@Agrohub.ApiGateway_HostAddress = http://localhost:5053
+
+GET {{Agrohub.ApiGateway_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

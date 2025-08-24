@@ -11,24 +11,14 @@ public sealed class AuthEndpoints : ICarterModule
 
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/auth").WithTags("Auth");
+        var group = app.MapGroup("").WithTags("Auth");
 
         group.MapPost("/register", Register).AllowAnonymous().WithOpenApi();
         group.MapPost("/login", Login).AllowAnonymous().WithOpenApi();
         group.MapPost("/refresh", Refresh).AllowAnonymous().WithOpenApi();
         group.MapPost("/logout", Logout).RequireAuthorization().WithOpenApi();
-
-        group.MapPost("/roles/assign", AssignRole)
-             .RequireAuthorization("admin")
-             .WithOpenApi();
-
-        app.MapGet("/me", (ClaimsPrincipal user) =>
-        {
-            var sub = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
-            var email = user.FindFirstValue(ClaimTypes.Email);
-            var roles = user.FindAll(ClaimTypes.Role).Select(c => c.Value).ToArray();
-            return Results.Ok(new { sub, email, roles });
-        }).RequireAuthorization().WithTags("Auth");
+        group.MapPost("/roles/assign", AssignRole).RequireAuthorization("admin").WithOpenApi();
+        group.MapGet("/me", Me).RequireAuthorization();
     }
 
     // ===== Handlers wrappers =====
@@ -67,14 +57,20 @@ public sealed class AuthEndpoints : ICarterModule
         return Results.NoContent();
     }
 
-    private static async Task<IResult> AssignRole([FromBody] AssignRoleDto body, IMediator mediator, ClaimsPrincipal user, CancellationToken ct)
+    private static async Task<IResult> AssignRole([FromBody] AssignRoleRequest body, IMediator mediator, ClaimsPrincipal user, CancellationToken ct)
     {
         Guid? by = Guid.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub"), out var g) ? g : null;
         await mediator.Send(new AssignRoleCommand(body.UserId, body.RoleName, by), ct);
         return Results.NoContent();
     }
 
-    public sealed record AssignRoleDto(Guid UserId, string RoleName);
+    private static async Task<IResult> Me(ClaimsPrincipal user)
+    {
+        var sub = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? user.FindFirstValue("sub");
+        var email = user.FindFirstValue(ClaimTypes.Email);
+        var roles = user.FindAll(ClaimTypes.Role).Select(c => c.Value).ToArray();
+        return Results.Ok(new { sub, email, roles });
+    }
 
     // ===== Cookie helpers =====
     private static void SetRefreshCookie(HttpContext ctx, string rawRefreshToken, DateTimeOffset expiresAt, bool crossSiteSpa)

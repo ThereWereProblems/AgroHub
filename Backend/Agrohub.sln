@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agrohub.EmailSender", "Agro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agrohub.Common", "Agrohub.Common\Agrohub.Common.csproj", "{6969DDC7-0B17-4759-88A6-7D239CE56408}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agrohub.ApiGateway", "Agrohub.ApiGateway\Agrohub.ApiGateway.csproj", "{8A3A73D2-FD16-4BD7-9D0F-A352953255B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{6969DDC7-0B17-4759-88A6-7D239CE56408}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6969DDC7-0B17-4759-88A6-7D239CE56408}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6969DDC7-0B17-4759-88A6-7D239CE56408}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A3A73D2-FD16-4BD7-9D0F-A352953255B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A3A73D2-FD16-4BD7-9D0F-A352953255B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A3A73D2-FD16-4BD7-9D0F-A352953255B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A3A73D2-FD16-4BD7-9D0F-A352953255B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
