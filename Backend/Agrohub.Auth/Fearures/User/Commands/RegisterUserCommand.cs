@@ -1,6 +1,7 @@
-﻿using Agrohub.Auth.DTO;
-using Agrohub.Auth.Interfaces;
+﻿using Agrohub.Auth.Interfaces;
+using Agrohub.Common.Events;
 using FluentValidation;
+using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,7 +27,7 @@ public sealed class RegisterUserValidator : AbstractValidator<RegisterUserComman
     }
 }
 
-public sealed class RegisterUserHandler(IdentityDbContext db, IPasswordHasher hasher, ITokenService tokens, IClock clock) : IRequestHandler<RegisterUserCommand, AuthResult>
+public sealed class RegisterUserHandler(IdentityDbContext db, IPasswordHasher hasher, ITokenService tokens, IClock clock, IPublishEndpoint publishEndpoint) : IRequestHandler<RegisterUserCommand, AuthResult>
 {
     public async Task<AuthResult> Handle(RegisterUserCommand cmd, CancellationToken ct)
     {
@@ -68,6 +69,8 @@ public sealed class RegisterUserHandler(IdentityDbContext db, IPasswordHasher ha
         });
 
         await db.SaveChangesAsync(ct);
+
+        await publishEndpoint.Publish(new SendEmailEvent("1",user.Email, "Confirm Your Email", "tu będzie link"), ct);
 
         return new AuthResult(access, accessExp, refreshRaw, refreshEntity.ExpiresAtUtc, refreshEntity.Id);
     }

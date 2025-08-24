@@ -3,6 +3,7 @@ using Agrohub.Auth.Data.Interceptors;
 using Agrohub.Auth.Interfaces;
 using Agrohub.Auth.Implementations;
 using Agrohub.Auth.Options;
+using Agrohub.Common.Extensions;
 using Carter;
 using FluentValidation;
 using MediatR;
@@ -75,6 +76,9 @@ builder.Services.AddSingleton<IClock, SystemClock>();
 
 // Flaga dla cookie SameSite=None gdy SPA na innym originie
 builder.Configuration["Auth:CrossSiteSpa"] ??= "true";
+
+// Add MassTransit
+builder.Services.AddMessageBroker(builder.Configuration);
 
 var app = builder.Build();
 

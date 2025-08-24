@@ -1,0 +1,6 @@
+@Agrohub.EmailSender_HostAddress = http://localhost:5093
+
+GET {{Agrohub.EmailSender_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

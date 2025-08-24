@@ -1,5 +1,4 @@
-﻿using Agrohub.Auth.Fearures.User.Commands;
-using Carter;
+﻿using Carter;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -31,13 +30,6 @@ public sealed class AuthEndpoints : ICarterModule
             return Results.Ok(new { sub, email, roles });
         }).RequireAuthorization().WithTags("Auth");
     }
-
-    // ===== Requests/Responses =====
-    public sealed record RegisterRequest(string Email, string Password, string? Username);
-    public sealed record LoginRequest(string Email, string Password, Guid DeviceId);
-    public sealed record LogoutRequest(Guid RefreshTokenId);
-
-    public sealed record AuthResponse(string AccessToken, DateTimeOffset AccessExpiresAt);
 
     // ===== Handlers wrappers =====
     private static async Task<IResult> Register([FromBody] RegisterRequest body, HttpContext ctx, IMediator mediator, CancellationToken ct)
